@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smog Saathi – winter air companion</title>
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<a class="skip" href="#results">Skip to your plan</a>
+<header>
+  <h1>Smog Saathi</h1>
+  <p class="sub">A winter-smog companion for families and neighbourhoods: low-emission routines, indoor air hacks and cleaner alternatives, with the reason behind every tip.</p>
+</header>
+<main id="main">
+  <form id="f" class="card" aria-labelledby="ft" novalidate>
+    <h2 id="ft" class="m0">Tell us about your day</h2>
+    <fieldset><legend>Where and how bad is the air?</legend>
+      <div class="grid">
+        <div><label for="city">City or neighbourhood</label>
+          <input id="city" type="text" maxlength="60" autocomplete="off" list="cities" value="Kolkata"></div>
+        <div><label for="aqi">Today’s AQI (check CPCB SAMEER or any AQI app)</label>
+          <input id="aqi" type="number" inputmode="numeric" min="0" max="999" value="320" aria-describedby="aqih">
+          <span id="aqih" class="note">Indian scale, 0–500.</span>
+          <button type="button" id="live" class="ghost">Use live AQI for this city</button>
+          <p id="aqistatus" class="note" role="status"></p></div>
+        <div><label for="lang">Reply language (AI plan)</label>
+          <select id="lang"><option>English</option><option>Hinglish</option><option>Hindi</option><option>Bengali</option></select></div>
+      </div>
+      <datalist id="cities"><option>Delhi</option><option>Kolkata</option><option>Lucknow</option><option>Kanpur</option><option>Patna</option><option>Mumbai</option><option>Pune</option></datalist>
+    </fieldset>
+    <fieldset><legend>Who is at home?</legend>
+      <label class="chk"><input id="kids" type="checkbox" checked> Children under 12</label>
+      <label class="chk"><input id="elderly" type="checkbox"> Adults over 60</label>
+      <label class="chk"><input id="resp" type="checkbox"> Someone with asthma, heart or lung problems</label>
+    </fieldset>
+    <fieldset><legend>Lifestyle</legend>
+      <div class="grid">
+        <div><label for="commute">Main commute</label>
+          <select id="commute"><option value="car">Car</option><option value="bike">Two-wheeler</option><option value="bus">Bus</option><option value="metro">Metro / train</option><option value="active">Walk / cycle</option><option value="wfh">Work from home</option></select></div>
+        <div><label for="km">Distance per day (km, one way)</label>
+          <input id="km" type="number" inputmode="decimal" min="0" max="200" value="12"></div>
+        <div><label for="cooking">Cooking fuel</label>
+          <select id="cooking"><option value="lpg">LPG</option><option value="png">Piped gas</option><option value="induction">Induction / electric</option><option value="biomass">Wood, coal or dung cakes</option></select></div>
+        <div><label for="heating">Winter warmth</label>
+          <select id="heating"><option value="layers">Layers / blankets</option><option value="electric">Electric heater</option><option value="burn">Burning wood, coal or charcoal</option></select></div>
+      </div>
+      <label class="chk"><input id="purifier" type="checkbox"> We already own an air purifier</label>
+    </fieldset>
+    <button type="submit">Update my plan</button>
+  </form>
+
+  <section id="results" aria-live="polite" aria-labelledby="rt">
+    <h2 id="rt" tabindex="-1">Your plan</h2>
+    <div id="out"></div>
+  </section>
+
+  <section class="card" aria-labelledby="at">
+    <h2 id="at" class="m0">Personalise with AI</h2>
+    <p class="note">An AI model writes a one-day plan from the answers above. Only those answers are sent, nothing is stored. This is general guidance, not medical advice.</p>
+    <button id="ai" type="button">Write my one-day plan</button>
+    <button id="stop" type="button" class="ghost" hidden>Stop</button>
+    <div id="aiout" class="ai-out" role="region" aria-live="polite" aria-label="AI plan" aria-busy="false"></div>
+  </section>
+
+  <section class="card" aria-labelledby="ct">
+    <h2 id="ct" class="m0">Ask Smog Saathi</h2>
+    <p class="note">Follow-up questions about your plan. General guidance, not medical advice.</p>
+    <div id="chatlog" class="chatlog" role="log" aria-live="polite" aria-label="Conversation" aria-busy="false"></div>
+    <form id="chat" novalidate>
+      <label for="q">Your question, for example: my child has a cough, should she go to school?</label>
+      <div class="row"><input id="q" type="text" maxlength="500" autocomplete="off"><button type="submit" id="send">Send</button></div>
+    </form>
+  </section>
+
+  <p class="note">Impact figures are rough, rounded estimates (per-passenger emission factors and typical purifier performance) meant to show direction and scale. Air quality varies by street and hour.</p>
+</main>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
