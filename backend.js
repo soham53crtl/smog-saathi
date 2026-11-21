@@ -21,7 +21,7 @@ const AQI_CACHE_MS = 10 * 60 * 1000;
 const UPSTREAM_TIMEOUT_MS = 20000;
 const UNAVAILABLE = "The AI service is unavailable right now.";
 
-const STATIC = {"/": "index.html", "/index.html": "index.html", "/src/app.js": "src/app.js", "/src/logic.js": "src/logic.js", "/src/styles.css": "src/styles.css"};
+const STATIC = {"/": "index.html", "/index.html": "index.html", "/src/client.js": "src/client.js", "/src/logic.js": "src/logic.js", "/src/styles.css": "src/styles.css"};
 const MIME = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8"};
 const HEADERS = {"Content-Security-Policy": "default-src 'self'; connect-src 'self'; frame-ancestors 'none'", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Permissions-Policy": "camera=(), microphone=(), geolocation=()", "Cross-Origin-Opener-Policy": "same-origin"};
 

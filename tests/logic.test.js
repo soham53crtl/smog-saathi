@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {aqiBand, toNum, clamp, cleanText, monthlyCO2Saving, normalise, buildPlan, promptFor, pm25ToAqi, aqiToPm25, estimateImpact, localNote, sanitizeMessages, cleanMessage, chatSystemPrompt, ASSUMPTIONS, emergencyNotice} from "../src/logic.js";
-import {allow} from "../server.js";
+import {allow} from "../backend.js";
 
 const base = {city: "Delhi", aqi: 350, kids: true, elderly: false, resp: false, commute: "car", km: 10, cooking: "biomass", heating: "burn", purifier: false, lang: "English"};
 const has = (plan, s) => plan.actions.some(a => a.title.includes(s));

@@ -19,7 +19,7 @@ after(() => { globalThis.fetch = realFetch; });
 async function boot(tag, env) {
   for (const k of ["GEMINI_API_KEY", "XAI_API_KEY", "GROQ_API_KEY", "LLM_PROVIDER", "LLM_MODEL", "GEMINI_MODEL"]) delete process.env[k];
   Object.assign(process.env, env);
-  const {server} = await import(`../server.js?${tag}`);
+  const {server} = await import(`../backend.js?${tag}`);
   await new Promise(r => server.listen(0, r));
   return {server, base: `http://127.0.0.1:${server.address().port}`};
 }

@@ -24,8 +24,8 @@ npm run check               # lint + type-check + tests (Node 20+)
 index.html            semantic, accessible markup
 src/styles.css        design tokens, light/dark, reduced motion
 src/logic.js          pure logic: AQI bands, PM2.5<->AQI, plan engine, impact model, sanitisers, prompts
-src/app.js            DOM rendering (textContent only), live AQI, AI plan, chat
-server.js             static server + /api/aqi, /api/plan, /api/chat (Gemini, xAI Grok or Groq)
+src/client.js            DOM rendering (textContent only), live AQI, AI plan, chat
+backend.js             static server + /api/aqi, /api/plan, /api/chat (Gemini, xAI Grok or Groq)
 tests/                node:test unit and HTTP tests (upstream services faked)
 ```
 
@@ -51,6 +51,8 @@ vercel env add LLM_MODEL production      # for example openai/gpt-oss-120b
 vercel env add TRUST_PROXY production    # 1
 vercel --prod
 ```
+Do not name files `app.js`, `server.js` or `index.js` at the root or in `src/`: Vercel treats those names as server entry points and would run the browser script as a backend. That is why the server file is `backend.js` and the browser script is `src/client.js`.
+
 Rate limits and the daily AI budget are kept in memory, so on serverless they apply per warm instance, not globally. Use a shared store such as Redis or Vercel KV for strict global limits.
 
 **Any Node host** (Render, Railway, Fly): start command `npm start`; set one provider key and `TRUST_PROXY=1`. GitHub Pages cannot run the server.

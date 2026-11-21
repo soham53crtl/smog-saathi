@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 process.env.LLM_PROVIDER = "gemini";
 process.env.GEMINI_API_KEY = "test-key";
-const {server, lookupAqi, spendAi} = await import("../server.js");
+const {server, lookupAqi, spendAi} = await import("../backend.js");
 
 // Local requests pass through; upstream services (Open-Meteo, Gemini) are faked and recorded.
 const realFetch = globalThis.fetch;
@@ -31,7 +31,7 @@ test("serves the app with security headers", async () => {
   assert.equal(r.headers.get("x-content-type-options"), "nosniff");
 });
 test("only whitelisted files are served", async () => {
-  for (const p of ["/server.js", "/package.json", "/.env", "/tests/logic.test.js"]) assert.equal((await fetch(base + p)).status, 404, p);
+  for (const p of ["/backend.js", "/package.json", "/.env", "/tests/logic.test.js"]) assert.equal((await fetch(base + p)).status, 404, p);
 });
 test("rejects malformed JSON and oversized bodies", async () => {
   assert.equal((await post("/api/plan", "{nope")).status, 400);
