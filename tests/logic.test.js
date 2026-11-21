@@ -145,3 +145,10 @@ test("prompts only allow numbers from the impact model and forbid invented stati
   assert.match(p, /Never invent percentages/);
   assert.match(chatSystemPrompt(normalise(base)), /Do not invent statistics/);
 });
+
+test("plan prompt prevents the known reasoning slips (windows, round trips, partial switches)", () => {
+  const p = promptFor(normalise({...base, aqi: 37, kids: true}));
+  assert.match(p, /opening windows raises indoor PM2\.5/);
+  assert.match(p, /Distances in the profile are one way/);
+  assert.match(p, /never claim this figure for a partial switch/);
+});
