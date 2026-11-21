@@ -6,10 +6,11 @@ import {localNote} from "./locations.js";
 /** @typedef {import("./types.js").Profile} Profile */
 /** @typedef {import("./types.js").Action} Action */
 
+/** @type {(group: string, title: string, why: string, impact: string) => Action} */
 const action = (group, title, why, impact) => ({group, title, why, impact});
 
 /** @returns {Action[]} */
-function outdoorActions(severity) {
+function outdoorActions(/** @type {number} */ severity) {
   const g = "Today outdoors";
   if (severity >= SEVERITY_AVOID_OUTDOORS) return [action(g, "Keep outdoor time to essentials and wear a well-fitted N95/FFP2 mask", "At these levels fine particles (PM2.5) reach deep into the lungs and bloodstream. Cloth and surgical masks let most of them through.", "A sealed N95 can filter roughly 95% of fine particles; a loose cloth mask far less.")];
   if (severity >= SEVERITY_LIMIT_OUTDOORS) return [action(g, "Shift walks and play to the afternoon, or move them indoors", "In winter, cold air traps pollution near the ground, so levels usually peak in the early morning and late evening.", "Avoiding peak hours can noticeably cut the dose your lungs receive.")];
@@ -17,7 +18,7 @@ function outdoorActions(severity) {
 }
 
 /** @returns {Action[]} */
-function homeActions(p) {
+function homeActions(/** @type {Profile} */ p) {
   const g = "Inside your home";
   const filter = p.purifier
     ? action(g, "Run the purifier in the bedroom or main room with doors closed, and check the filter", "A purifier only cleans the air in the room it is in, and a clogged filter does little.", "A correctly sized HEPA unit typically removes well over half of indoor PM2.5.")
@@ -33,7 +34,7 @@ function homeActions(p) {
 }
 
 /** @returns {Action[]} */
-function kitchenAndHeatingActions(p) {
+function kitchenAndHeatingActions(/** @type {Profile} */ p) {
   const g = "Cooking and heating";
   const out = [p.cooking === "biomass"
     ? action(g, "Move toward LPG or induction; until then cook with a chimney or an exhaust fan and a door open", "Burning wood, coal or dung cakes releases large amounts of PM2.5 right where the family breathes.", "Often the single biggest indoor change, because indoor levels from such stoves can be many times the outdoor reading.")
@@ -44,7 +45,7 @@ function kitchenAndHeatingActions(p) {
 }
 
 /** @returns {Action[]} */
-function commuteActions(p) {
+function commuteActions(/** @type {Profile} */ p) {
   const g = "Getting around";
   switch (p.commute) {
     case "wfh": return [action(g, "Work from home on severe days and bundle errands into one trip", "Every avoided trip is one less engine adding to the same trapped air.", "Zero commute emissions on those days.")];
@@ -59,7 +60,7 @@ function commuteActions(p) {
 }
 
 /** @returns {Action[]} */
-function communityActions(sensitive) {
+function communityActions(/** @type {boolean} */ sensitive) {
   const g = "Your community";
   const out = [
     action(g, "Report garbage or leaf burning, avoid firecrackers, and switch off engines at long stops", "Open burning and idling are local sources that neighbours can remove quickly.", "Small, shared actions lower the baseline everyone breathes."),
@@ -74,7 +75,7 @@ function communityActions(sensitive) {
 }
 
 /** @returns {Action[]} */
-function localActions(city) {
+function localActions(/** @type {string} */ city) {
   const note = localNote(city);
   return note ? [action(`Local to ${city}`, note.title, note.why, "City rules and transport options differ, so local advice beats generic advice.")] : [];
 }

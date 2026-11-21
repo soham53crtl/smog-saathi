@@ -2,7 +2,9 @@
 import {ASSUMPTIONS, buildPlan, estimateImpact} from "../logic.js";
 import {$, el, readForm} from "./dom.js";
 
-function renderImpact(p) {
+/** @typedef {import("../shared/types.js").Profile} Profile */
+
+function renderImpact(/** @type {Profile} */ p) {
   const i = estimateImpact(p), a = ASSUMPTIONS, card = el("div", "card");
   const list = el("ul", "impact");
   list.append(
@@ -30,5 +32,6 @@ export function render() {
   }
   $("out").replaceChildren(frag);
 }
+/** @type {ReturnType<typeof setTimeout> | undefined} */
 let timer;
 export const scheduleRender = () => { clearTimeout(timer); timer = setTimeout(render, 250); };

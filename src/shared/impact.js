@@ -4,7 +4,7 @@ import {aqiToPm25} from "./aqi.js";
 /** @typedef {import("./types.js").Profile} Profile */
 
 /** Monthly kg CO2 avoided by switching modes; `km` is one way. Never negative. */
-export function monthlyCO2Saving(from, to, km, days = WORKING_DAYS) {
+export function monthlyCO2Saving(/** @type {string} */ from, /** @type {string} */ to, /** @type {number} */ km, days = WORKING_DAYS) {
   const perKm = (EF[from] ?? 0) - (EF[to] ?? 0);
   return Math.max(0, Math.round(perKm * km * 2 * days * 10) / 10);
 }

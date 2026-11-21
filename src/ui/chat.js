@@ -1,14 +1,15 @@
 // Follow-up chat. History lives in memory only.
 import {$, el, postJson, readForm, setBusy} from "./dom.js";
 
+/** @type {{role: "user" | "assistant", content: string}[]} */
 const history = [];
-function addMessage(role, text) {
+function addMessage(/** @type {"user" | "assistant"} */ role, /** @type {string} */ text) {
   const p = el("p", "msg " + role);
   p.append(el("strong", null, role === "user" ? "You: " : "Saathi: "), document.createTextNode(text));
   $("chatlog").append(p);
   p.scrollIntoView({block: "nearest"});
 }
-export async function sendChat(e) {
+export async function sendChat(/** @type {Event} */ e) {
   e.preventDefault();
   const input = $("q"), text = input.value.trim();
   if (!text) return;

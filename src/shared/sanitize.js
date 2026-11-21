@@ -4,7 +4,7 @@ import {clamp, toNum} from "./numbers.js";
 /** @typedef {import("./types.js").Profile} Profile */
 
 /** Keep letters (any script), combining marks, digits and basic punctuation only. */
-export function cleanText(s, max = MAX_TEXT) {
+export function cleanText(/** @type {unknown} */ s, max = MAX_TEXT) {
   return String(s ?? "").replace(/[^\p{L}\p{M}\p{N} ,.-]/gu, "").trim().slice(0, max);
 }
 
@@ -15,7 +15,7 @@ export function cleanText(s, max = MAX_TEXT) {
  */
 export function normalise(input) {
   const raw = input ?? {};
-  const pick = (v, allowed, dflt) => (allowed.includes(v) ? v : dflt);
+  const pick = (/** @type {any} */ v, /** @type {string[]} */ allowed, /** @type {string} */ dflt) => (allowed.includes(v) ? v : dflt);
   return {
     city: cleanText(raw.city) || "your area",
     aqi: clamp(Math.round(toNum(raw.aqi, DEFAULT_AQI)), 0, MAX_AQI),
@@ -30,11 +30,11 @@ export function normalise(input) {
 }
 
 /** Strip control characters and angle brackets, collapse whitespace, cap length. */
-export function cleanMessage(s) {
+export function cleanMessage(/** @type {unknown} */ s) {
   return String(s ?? "").replace(/[\p{Cc}<>]/gu, " ").replace(/\s+/g, " ").trim().slice(0, MAX_MESSAGE);
 }
 /** Keep the last few valid turns, starting with a user turn. @returns {{role: "user"|"assistant", content: string}[]} */
-export function sanitizeMessages(msgs) {
+export function sanitizeMessages(/** @type {unknown} */ msgs) {
   if (!Array.isArray(msgs)) return [];
   const clean = msgs.slice(-MAX_CHAT_TURNS)
     .map(/** @returns {{role: "user"|"assistant", content: string}} */ m => ({role: m?.role === "assistant" ? "assistant" : "user", content: cleanMessage(m?.content)}))

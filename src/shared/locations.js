@@ -9,7 +9,7 @@ const LOCAL_NOTES = [
   [/lucknow|kanpur|patna/i, {title: "Avoid waste and crop-residue burning and ask your ward office to act on open burning", why: "Cold, still winter air across the Indo-Gangetic plain traps smoke close to the ground."}]
 ];
 /** @returns {LocalNote|null} */
-export function localNote(city) {
+export function localNote(/** @type {string} */ city) {
   const hit = LOCAL_NOTES.find(([re]) => re.test(city));
   return hit ? hit[1] : null;
 }
