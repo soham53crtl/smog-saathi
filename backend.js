@@ -45,7 +45,7 @@ const clientIp = req => (process.env.TRUST_PROXY === "1" && String(req.headers["
 
 /* ---------- Helpers ---------- */
 const send = (res, status, body) => {
-  res.writeHead(status, {...HEADERS, "Content-Type": "application/json", "Cache-Control": "no-store"});
+  res.writeHead(status, {...HEADERS, "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store"});
   res.end(JSON.stringify(body));
 };
 
