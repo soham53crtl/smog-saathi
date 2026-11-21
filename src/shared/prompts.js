@@ -14,7 +14,7 @@ function vettedTips(p) {
 function impactFacts(p) {
   const i = estimateImpact(p);
   const commute = i.commute.alt ? `switching the whole commute from ${p.commute} to ${i.commute.alt} saves about ${i.commute.co2} kg CO2 a month (never claim this figure for a partial switch)` : "no commute estimate";
-  return `Impact figures you may quote, and no other statistics: outdoor PM2.5 about ${i.outdoor} µg/m³; indoors about ${i.indoor}, or about ${i.withFilter} with a purifier or box-fan filter; ${commute}. Never invent percentages or other numbers.`;
+  return `Impact figures you may quote, and no other statistics: outdoor PM2.5 about ${i.outdoor} µg/m³; indoors about ${i.indoor} with no filter, and about ${i.withFilter} once a purifier or box-fan filter is running (quote ${i.withFilter}, not ${i.indoor}, whenever a filter is mentioned); ${commute}. Never invent percentages or other numbers.`;
 }
 
 /** Build the LLM prompt. The profile is JSON-encoded and flagged as data only. @param {Profile} p */

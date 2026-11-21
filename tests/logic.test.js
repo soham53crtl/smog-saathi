@@ -140,7 +140,7 @@ test("emergency phrases always trigger fixed guidance, ordinary questions do not
 test("prompts only allow numbers from the impact model and forbid invented statistics", () => {
   const p = promptFor(normalise({...base, aqi: 320, commute: "car", km: 12}));
   assert.match(p, /outdoor PM2\.5 about 146/);
-  assert.match(p, /about 44 with a purifier/);
+  assert.match(p, /about 44 once a purifier/);
   assert.match(p, /73\.9 kg CO2/);
   assert.match(p, /Never invent percentages/);
   assert.match(chatSystemPrompt(normalise(base)), /Do not invent statistics/);
@@ -151,4 +151,10 @@ test("plan prompt prevents the known reasoning slips (windows, round trips, part
   assert.match(p, /opening windows raises indoor PM2\.5/);
   assert.match(p, /Distances in the profile are one way/);
   assert.match(p, /never claim this figure for a partial switch/);
+});
+
+test("prompt labels indoor numbers so a filter is never credited with the unfiltered value", () => {
+  const p = promptFor(normalise({...base, aqi: 37}));
+  assert.match(p, /with no filter/);
+  assert.match(p, /quote 7, not 13, whenever a filter is mentioned/);
 });
