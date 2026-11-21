@@ -2,7 +2,7 @@
 import {cpSync, mkdirSync, rmSync} from "node:fs";
 
 rmSync("public", {recursive: true, force: true});
-mkdirSync("public/src", {recursive: true});
+mkdirSync("public", {recursive: true});
 cpSync("index.html", "public/index.html");
-for (const f of ["client.js", "logic.js", "styles.css"]) cpSync(`src/${f}`, `public/src/${f}`);
+cpSync("src", "public/src", {recursive: true});
 console.log("public/ ready");

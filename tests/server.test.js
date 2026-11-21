@@ -31,7 +31,7 @@ test("serves the app with security headers", async () => {
   assert.equal(r.headers.get("x-content-type-options"), "nosniff");
 });
 test("only whitelisted files are served", async () => {
-  for (const p of ["/backend.js", "/package.json", "/.env", "/tests/logic.test.js"]) assert.equal((await fetch(base + p)).status, 404, p);
+  for (const p of ["/backend.js", "/lib/config.js", "/package.json", "/.env", "/tests/logic.test.js", "/src/../backend.js"]) assert.equal((await fetch(base + p)).status, 404, p);
 });
 test("rejects malformed JSON and oversized bodies", async () => {
   assert.equal((await post("/api/plan", "{nope")).status, 400);
@@ -106,4 +106,8 @@ test("chat prepends the fixed emergency notice before the model reply", async ()
   const text = (await r.json()).text;
   assert.match(text, /^This may be an emergency\. Call 112/);
   assert.match(text, /Stay indoors\.$/);
+});
+
+test("every browser module under src/ is served, including nested folders", async () => {
+  for (const p of ["/src/client.js", "/src/shared/plan.js", "/src/ui/dom.js", "/src/styles.css"]) assert.equal((await fetch(base + p)).status, 200, p);
 });

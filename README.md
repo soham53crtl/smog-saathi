@@ -23,16 +23,37 @@ npm run check                # lint + type-check + tests (Node 20+)
 ```
 
 ## Architecture
+Small modules, one job each. Browser code and server code share the same pure logic.
 ```
-index.html            semantic, accessible markup
-src/styles.css        design tokens, light/dark, reduced motion
-src/logic.js          pure logic: AQI bands, PM2.5<->AQI, plan engine, impact model, sanitisers, prompts
-src/client.js         DOM rendering (textContent only), live AQI, AI plan, chat
-backend.js            request handler + local server: /api/aqi, /api/plan, /api/chat
-api/*.js              Vercel serverless entries (re-export the shared handler)
-scripts/              build step that copies browser files into public/
-vercel.json           framework "Other", security headers, function timeout
-tests/                node:test unit and HTTP tests (upstream services faked)
+index.html              semantic, accessible markup
+src/                    everything the browser loads
+  client.js             entry point: wires the page to the UI modules
+  styles.css            design tokens, light/dark, reduced motion
+  logic.js              public API of the shared logic (re-exports src/shared)
+  shared/               pure logic, no DOM and no I/O (also used by the server)
+    constants.js        limits and lookup tables
+    numbers.js          clamp, toNum
+    sanitize.js         untrusted input -> safe profile, text and chat history
+    aqi.js              AQI bands, PM2.5 <-> AQI (CPCB breakpoints)
+    impact.js           assumption-labelled impact estimates
+    locations.js        city-specific notes
+    plan.js             rule-based plan engine
+    prompts.js          LLM prompts (vetted tips + impact numbers)
+    safety.js           hard-coded emergency notice
+    types.js            JSDoc types
+  ui/                   DOM code only (textContent, never innerHTML)
+    dom.js  plan-view.js  live-aqi.js  ai-plan.js  chat.js
+lib/                    server code
+  routes.js             the three API routes + request handler
+  llm.js                Gemini / xAI Grok / Groq requests and error mapping
+  aqi-service.js        live AQI from Open-Meteo, cached
+  http.js  static.js    response helpers, safe static file serving
+  rate-limit.js         per-IP limiter and daily AI budget
+  config.js  errors.js  settings read at call time, HttpError
+backend.js              local server entry (npm start)
+api/*.js                Vercel serverless entries (re-export the shared handler)
+scripts/                build step that copies browser files into public/
+tests/                  node:test unit and HTTP tests (upstream services faked)
 ```
 
 ## How it maps to the judging parameters
@@ -42,7 +63,7 @@ tests/                node:test unit and HTTP tests (upstream services faked)
 | Code quality | Small single-purpose functions, named constants, JSDoc types checked by `tsc` (checkJs), ESLint, EditorConfig, shared pure logic for browser and server, zero runtime dependencies |
 | Security | API keys only on the server; CSP, nosniff, no `innerHTML`; whitelisted inputs; sanitised chat history (6 turns, 500 chars); per-route body limits and per-IP rate limits (10/min for AI, 30/min for AQI); daily AI budget (`AI_DAILY_LIMIT`, default 500); upstream timeouts; no-store API responses; prompts treat user data as data |
 | Efficiency | Static files gzipped once with ETag revalidation (local server), CDN on Vercel, 10-minute AQI cache with shared in-flight lookups, debounced rendering, cancellable AI requests, capped history and output tokens |
-| Testing | 49 `node:test` tests, about 99% line coverage (`npm run test:coverage`): AQI maths, sanitisers, plan rules, impact model, rate limiter, emergency notice, HTTP behaviour, Vercel handler behaviour, and the Open-Meteo, Groq, xAI and Gemini paths with faked upstreams. CI runs lint, type-check and tests |
+| Testing | 50 `node:test` tests, about 99% line coverage (`npm run test:coverage`): AQI maths, sanitisers, plan rules, impact model, rate limiter, emergency notice, HTTP behaviour, Vercel handler behaviour, and the Open-Meteo, Groq, xAI and Gemini paths with faked upstreams. CI runs lint, type-check and tests |
 | Accessibility | Skip link, labelled fieldsets, 44 px targets, live regions (`role="status"`, `role="log"`), visible focus, AQI band shown as text not just colour, dark mode, reduced motion |
 
 ## Deploy on Vercel

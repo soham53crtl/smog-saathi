@@ -1,5 +1,6 @@
 import test, {after} from "node:test";
 import assert from "node:assert/strict";
+import {resetRateLimits} from "../lib/rate-limit.js";
 
 // Each provider is loaded as a fresh module instance (query string) with its own environment.
 const realFetch = globalThis.fetch;
@@ -17,6 +18,7 @@ globalThis.fetch = async (url, opts) => {
 after(() => { globalThis.fetch = realFetch; });
 
 async function boot(tag, env) {
+  resetRateLimits();
   for (const k of ["GEMINI_API_KEY", "XAI_API_KEY", "GROQ_API_KEY", "LLM_PROVIDER", "LLM_MODEL", "GEMINI_MODEL"]) delete process.env[k];
   Object.assign(process.env, env);
   const {server} = await import(`../backend.js?${tag}`);
