@@ -13,6 +13,19 @@ A GenAI assistant that helps families and communities navigate severe winter smo
 - **Fixed emergency guidance:** messages describing breathlessness, chest pain and similar symptoms always get a "call 112" notice first, even if the AI fails
 - Everything except the AI works with no key
 
+## Screenshots
+Captured from a local run of the app (no AI key configured, so the AI plan is not shown here; the live demo shows it).
+
+| Plan and impact panel | Dark mode |
+|---|---|
+| ![Plan and impact panel for a Very Poor AQI day](docs/plan.png) | ![Same view in dark mode](docs/dark-mode.png) |
+
+![Tips with Why and Impact on every card](docs/tips.png)
+
+| Fixed emergency notice in chat | Mobile layout |
+|---|---|
+| ![Chat showing the hard-coded 112 emergency notice](docs/chat.png) | ![Mobile layout](docs/mobile.png) |
+
 ## Run locally
 ```bash
 npm install                  # dev tools only; the app has zero runtime dependencies
