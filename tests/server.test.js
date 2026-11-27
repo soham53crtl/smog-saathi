@@ -10,19 +10,50 @@ const realFetch = globalThis.fetch;
 const upstream = [];
 globalThis.fetch = async (url, opts) => {
   const u = String(url);
-  if (u.startsWith("http://127.0.0.1")) return realFetch(url, opts);
+  if (u.startsWith("http://127.0.0.1")) {
+    return realFetch(url, opts);
+  }
   upstream.push({url: u, opts});
-  if (u.includes("geocoding-api")) return Response.json(u.includes("Nowhere") ? {} : {results: [{name: "Kolkata", admin1: "West Bengal", latitude: 22.57, longitude: 88.36}]});
-  if (u.includes("air-quality-api")) return Response.json({current: {pm2_5: 75}});
-  if (u.includes("generativelanguage")) return Response.json({candidates: [{content: {parts: [{text: "Stay indoors."}]}}]});
+  if (u.includes("geocoding-api")) {
+    return Response.json(
+      u.includes("Nowhere")
+        ? {}
+        : {results: [{name: "Kolkata", admin1: "West Bengal", latitude: 22.57, longitude: 88.36}]}
+    );
+  }
+  if (u.includes("air-quality-api")) {
+    return Response.json({current: {pm2_5: 75}});
+  }
+  if (u.includes("generativelanguage")) {
+    return Response.json({candidates: [{content: {parts: [{text: "Stay indoors."}]}}]});
+  }
   throw new Error("unexpected upstream call: " + u);
 };
 
 let base;
-before(async () => { await new Promise(r => server.listen(0, r)); base = `http://127.0.0.1:${server.address().port}`; });
-after(() => { server.close(); globalThis.fetch = realFetch; });
-const post = (path, body) => fetch(base + path, {method: "POST", body: typeof body === "string" ? body : JSON.stringify(body)});
-const profile = {city: "Kolkata", aqi: 320, kids: true, commute: "car", km: 10, cooking: "lpg", heating: "layers", lang: "English"};
+before(async () => {
+  await new Promise(r => server.listen(0, r));
+  base = `http://127.0.0.1:${server.address().port}`;
+});
+after(() => {
+  server.close();
+  globalThis.fetch = realFetch;
+});
+const post = (path, body) =>
+  fetch(base + path, {
+    method: "POST",
+    body: typeof body === "string" ? body : JSON.stringify(body)
+  });
+const profile = {
+  city: "Kolkata",
+  aqi: 320,
+  kids: true,
+  commute: "car",
+  km: 10,
+  cooking: "lpg",
+  heating: "layers",
+  lang: "English"
+};
 
 test("serves the app with security headers", async () => {
   const r = await fetch(base + "/");
@@ -31,7 +62,16 @@ test("serves the app with security headers", async () => {
   assert.equal(r.headers.get("x-content-type-options"), "nosniff");
 });
 test("only whitelisted files are served", async () => {
-  for (const p of ["/backend.js", "/lib/config.js", "/package.json", "/.env", "/tests/logic.test.js", "/src/../backend.js"]) assert.equal((await fetch(base + p)).status, 404, p);
+  for (const p of [
+    "/backend.js",
+    "/lib/config.js",
+    "/package.json",
+    "/.env",
+    "/tests/logic.test.js",
+    "/src/../backend.js"
+  ]) {
+    assert.equal((await fetch(base + p)).status, 404, p);
+  }
 });
 test("rejects malformed JSON and oversized bodies", async () => {
   assert.equal((await post("/api/plan", "{nope")).status, 400);
@@ -42,11 +82,11 @@ test("unknown routes and wrong methods return 404", async () => {
   assert.equal((await fetch(base + "/api/plan")).status, 404);
 });
 test("live AQI geocodes, converts PM2.5 and caches", async () => {
-  const before = upstream.length;
+  const callsBefore = upstream.length;
   const r = await fetch(base + "/api/aqi?city=Kolkata");
   assert.deepEqual(await r.json(), {place: "Kolkata, West Bengal", pm25: 75, aqi: 150});
   await fetch(base + "/api/aqi?city=Kolkata");
-  assert.equal(upstream.length - before, 2, "second call should be served from cache");
+  assert.equal(upstream.length - callsBefore, 2, "second call should be served from cache");
 });
 test("live AQI handles missing and unknown cities", async () => {
   assert.equal((await fetch(base + "/api/aqi")).status, 400);
@@ -61,7 +101,13 @@ test("plan forwards a sanitised profile prompt to Gemini", async () => {
   assert.doesNotMatch(sent.opts.body, /<script>/);
 });
 test("chat sanitises history and sends the profile as a system instruction", async () => {
-  const r = await post("/api/chat", {profile, messages: [{role: "assistant", content: "hi"}, {role: "user", content: "Is it safe <b>to jog</b>?"}]});
+  const r = await post("/api/chat", {
+    profile,
+    messages: [
+      {role: "assistant", content: "hi"},
+      {role: "user", content: "Is it safe <b>to jog</b>?"}
+    ]
+  });
   assert.equal(r.status, 200);
   const body = JSON.parse(upstream.at(-1).opts.body);
   assert.equal(body.contents.length, 1);
@@ -88,10 +134,10 @@ test("API responses are never cached and pages restrict browser features", async
   assert.match((await fetch(base + "/")).headers.get("permissions-policy"), /geolocation=\(\)/);
 });
 test("concurrent lookups for one city share a single upstream call", async () => {
-  const before = upstream.filter(u => u.url.includes("geocoding-api")).length;
+  const callsBefore = upstream.filter(u => u.url.includes("geocoding-api")).length;
   const [a, b] = await Promise.all([lookupAqi("Pune"), lookupAqi("Pune")]);
   assert.deepEqual(a, b);
-  assert.equal(upstream.filter(u => u.url.includes("geocoding-api")).length - before, 1);
+  assert.equal(upstream.filter(u => u.url.includes("geocoding-api")).length - callsBefore, 1);
 });
 test("daily AI budget blocks at the limit and resets the next day", () => {
   const day = Date.UTC(2026, 0, 1);
@@ -102,12 +148,17 @@ test("daily AI budget blocks at the limit and resets the next day", () => {
 });
 
 test("chat prepends the fixed emergency notice before the model reply", async () => {
-  const r = await post("/api/chat", {profile, messages: [{role: "user", content: "child is breathless"}]});
+  const r = await post("/api/chat", {
+    profile,
+    messages: [{role: "user", content: "child is breathless"}]
+  });
   const text = (await r.json()).text;
   assert.match(text, /^This may be an emergency\. Call 112/);
   assert.match(text, /Stay indoors\.$/);
 });
 
 test("every browser module under src/ is served, including nested folders", async () => {
-  for (const p of ["/src/client.js", "/src/shared/plan.js", "/src/ui/dom.js", "/src/styles.css"]) assert.equal((await fetch(base + p)).status, 200, p);
+  for (const p of ["/src/client.js", "/src/shared/plan.js", "/src/ui/dom.js", "/src/styles.css"]) {
+    assert.equal((await fetch(base + p)).status, 200, p);
+  }
 });

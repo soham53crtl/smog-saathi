@@ -7,13 +7,17 @@ import {buildPlan} from "./plan.js";
 /** Rule-engine tips the model must stay consistent with (static text only, no user data). @param {Profile} p */
 function vettedTips(p) {
   const groups = ["Today outdoors", "Inside your home", "Cooking and heating", "Getting around"];
-  return buildPlan(p).actions.filter(a => groups.includes(a.group)).map(a => `- ${a.title}`);
+  return buildPlan(p)
+    .actions.filter(a => groups.includes(a.group))
+    .map(a => `- ${a.title}`);
 }
 
 /** The only numbers the model may quote, taken from the same model as the impact panel. @param {Profile} p */
 function impactFacts(p) {
   const i = estimateImpact(p);
-  const commute = i.commute.alt ? `switching the whole commute from ${p.commute} to ${i.commute.alt} saves about ${i.commute.co2} kg CO2 a month (never claim this figure for a partial switch)` : "no commute estimate";
+  const commute = i.commute.alt
+    ? `switching the whole commute from ${p.commute} to ${i.commute.alt} saves about ${i.commute.co2} kg CO2 a month (never claim this figure for a partial switch)`
+    : "no commute estimate";
   return `Impact figures you may quote, and no other statistics: outdoor PM2.5 about ${i.outdoor} µg/m³; indoors about ${i.indoor} with no filter, and about ${i.withFilter} once a purifier or box-fan filter is running (quote ${i.withFilter}, not ${i.indoor}, whenever a filter is mentioned); ${commute}. Never invent percentages or other numbers.`;
 }
 
@@ -35,7 +39,19 @@ export function promptFor(p) {
 
 /** The only profile fields ever sent to the model. @param {Profile} p */
 function profileData(p) {
-  return {city: p.city, aqi: p.aqi, band: aqiBand(p.aqi).name, kids: p.kids, elderly: p.elderly, respiratory: p.resp, commute: p.commute, km_one_way: p.km, cooking: p.cooking, heating: p.heating, has_purifier: p.purifier};
+  return {
+    city: p.city,
+    aqi: p.aqi,
+    band: aqiBand(p.aqi).name,
+    kids: p.kids,
+    elderly: p.elderly,
+    respiratory: p.resp,
+    commute: p.commute,
+    km_one_way: p.km,
+    cooking: p.cooking,
+    heating: p.heating,
+    has_purifier: p.purifier
+  };
 }
 
 /** @param {Profile} p */

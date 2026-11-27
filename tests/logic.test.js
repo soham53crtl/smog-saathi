@@ -1,11 +1,42 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {aqiBand, toNum, clamp, cleanText, monthlyCO2Saving, normalise, buildPlan, promptFor, pm25ToAqi, aqiToPm25, estimateImpact, localNote, sanitizeMessages, cleanMessage, chatSystemPrompt, ASSUMPTIONS, emergencyNotice} from "../src/logic.js";
+import {
+  aqiBand,
+  toNum,
+  clamp,
+  cleanText,
+  monthlyCO2Saving,
+  normalise,
+  buildPlan,
+  promptFor,
+  pm25ToAqi,
+  aqiToPm25,
+  estimateImpact,
+  localNote,
+  sanitizeMessages,
+  cleanMessage,
+  chatSystemPrompt,
+  ASSUMPTIONS,
+  emergencyNotice
+} from "../src/logic.js";
 import {allow} from "../backend.js";
 
-const base = {city: "Delhi", aqi: 350, kids: true, elderly: false, resp: false, commute: "car", km: 10, cooking: "biomass", heating: "burn", purifier: false, lang: "English"};
+const base = {
+  city: "Delhi",
+  aqi: 350,
+  kids: true,
+  elderly: false,
+  resp: false,
+  commute: "car",
+  km: 10,
+  cooking: "biomass",
+  heating: "burn",
+  purifier: false,
+  lang: "English"
+};
 const has = (plan, s) => plan.actions.some(a => a.title.includes(s));
-const hasHome = (plan, s) => plan.actions.some(a => a.group === "Inside your home" && a.title.includes(s));
+const hasHome = (plan, s) =>
+  plan.actions.some(a => a.group === "Inside your home" && a.title.includes(s));
 const outdoor = plan => plan.actions.find(a => a.group === "Today outdoors").title;
 
 test("AQI bands follow the Indian CPCB scale", () => {
@@ -21,7 +52,7 @@ test("numeric helpers are safe", () => {
   assert.equal(clamp(99, 0, 9), 9);
 });
 test("cleanText strips markup, keeps Indic scripts, caps length", () => {
-  assert.doesNotMatch(cleanText("<img onerror=\"x\">Delhi"), /[<>"'{}]/);
+  assert.doesNotMatch(cleanText('<img onerror="x">Delhi'), /[<>"'{}]/);
   assert.equal(cleanText("কলকাতা"), "কলকাতা");
   assert.equal(cleanText("a".repeat(500)).length, 60);
 });
@@ -52,20 +83,27 @@ test("prompt treats the profile as data", () => {
 });
 test("rate limiter blocks the 11th request in a minute and recovers", () => {
   const t = 1_000_000;
-  for (let i = 0; i < 10; i++) assert.equal(allow("1.2.3.4", t + i), true);
+  for (let i = 0; i < 10; i++) {
+    assert.equal(allow("1.2.3.4", t + i), true);
+  }
   assert.equal(allow("1.2.3.4", t + 11), false);
   assert.equal(allow("1.2.3.4", t + 61_000), true);
 });
 
 test("PM2.5 converts to Indian AQI at the CPCB breakpoints", () => {
-  assert.deepEqual([0, 30, 60, 90, 120, 250, 380, 999].map(pm25ToAqi), [0, 50, 100, 200, 300, 400, 500, 500]);
+  assert.deepEqual(
+    [0, 30, 60, 90, 120, 250, 380, 999].map(pm25ToAqi),
+    [0, 50, 100, 200, 300, 400, 500, 500]
+  );
   assert.equal(pm25ToAqi(75), 150);
   assert.equal(pm25ToAqi(-5), 0);
 });
 test("AQI to PM2.5 is the inverse and handles out-of-range values", () => {
   assert.equal(aqiToPm25(150), 75);
   assert.equal(aqiToPm25(999), 380);
-  for (const pm of [10, 45, 100, 200]) assert.ok(Math.abs(aqiToPm25(pm25ToAqi(pm)) - pm) <= 2);
+  for (const pm of [10, 45, 100, 200]) {
+    assert.ok(Math.abs(aqiToPm25(pm25ToAqi(pm)) - pm) <= 2);
+  }
 });
 test("impact estimates use the stated assumptions", () => {
   const i = estimateImpact(normalise({...base, aqi: 300}));
@@ -81,11 +119,19 @@ test("local notes match cities and add a plan action", () => {
   assert.match(localNote("Delhi").title, /GRAP/);
   assert.match(localNote("Salt Lake, Kolkata").title, /Metro/);
   assert.equal(localNote("Shimla"), null);
-  assert.ok(buildPlan(normalise({...base, city: "Kolkata"})).actions.some(a => a.group === "Local to Kolkata"));
-  assert.ok(!buildPlan(normalise({...base, city: "Shimla"})).actions.some(a => a.group.startsWith("Local")));
+  assert.ok(
+    buildPlan(normalise({...base, city: "Kolkata"})).actions.some(
+      a => a.group === "Local to Kolkata"
+    )
+  );
+  assert.ok(
+    !buildPlan(normalise({...base, city: "Shimla"})).actions.some(a => a.group.startsWith("Local"))
+  );
 });
 test("community section offers neighbourhood-level actions", () => {
-  assert.ok(buildPlan(normalise(base)).actions.filter(a => a.group === "Your community").length >= 6);
+  assert.ok(
+    buildPlan(normalise(base)).actions.filter(a => a.group === "Your community").length >= 6
+  );
 });
 test("normalise tolerates null and junk input", () => {
   assert.equal(normalise(null).city, "your area");
@@ -94,7 +140,11 @@ test("normalise tolerates null and junk input", () => {
 test("chat messages are sanitised, capped and start with a user turn", () => {
   assert.equal(cleanMessage("a <b>b</b>\u0000 ?"), "a b b /b ?");
   assert.equal(cleanMessage("x".repeat(900)).length, 500);
-  const msgs = [{role: "assistant", content: "hi"}, ...Array.from({length: 10}, (_, i) => ({role: i % 2 ? "assistant" : "user", content: "m" + i})), {role: "system", content: "evil"}];
+  const msgs = [
+    {role: "assistant", content: "hi"},
+    ...Array.from({length: 10}, (_, i) => ({role: i % 2 ? "assistant" : "user", content: "m" + i})),
+    {role: "system", content: "evil"}
+  ];
   const out = sanitizeMessages(msgs);
   assert.ok(out.length <= 6);
   assert.equal(out[0].role, "user");
@@ -122,7 +172,9 @@ test("very poor air means windows stay shut; moderate air allows afternoon airin
   assert.ok(hasHome(buildPlan(normalise({...base, aqi: 150})), "Air the house"));
 });
 test("local card has a real title and no duplicated city prefix", () => {
-  const a = buildPlan(normalise({...base, city: "Kolkata"})).actions.find(x => x.group === "Local to Kolkata");
+  const a = buildPlan(normalise({...base, city: "Kolkata"})).actions.find(
+    x => x.group === "Local to Kolkata"
+  );
   assert.doesNotMatch(a.title, /^Tip for/);
   assert.doesNotMatch(a.why, /^Kolkata:/);
 });
@@ -131,10 +183,25 @@ test("plan prompt forbids outdoor activity and extra driving on very poor days",
 });
 
 test("emergency phrases always trigger fixed guidance, ordinary questions do not", () => {
-  for (const t of ["child is breathless", "I can’t breathe", "she has chest pain", "baby has blue lips", "uski saans phool rahi hai", "Short of breath since morning", "asthma attack, inhaler not working"]) {
+  for (const t of [
+    "child is breathless",
+    "I can’t breathe",
+    "she has chest pain",
+    "baby has blue lips",
+    "uski saans phool rahi hai",
+    "Short of breath since morning",
+    "asthma attack, inhaler not working"
+  ]) {
     assert.match(emergencyNotice(t), /112/, t);
   }
-  for (const t of ["is it safe to jog?", "which mask should I buy", "my child has a mild cough", ""]) assert.equal(emergencyNotice(t), null, t);
+  for (const t of [
+    "is it safe to jog?",
+    "which mask should I buy",
+    "my child has a mild cough",
+    ""
+  ]) {
+    assert.equal(emergencyNotice(t), null, t);
+  }
 });
 
 test("prompts only allow numbers from the impact model and forbid invented statistics", () => {

@@ -19,7 +19,8 @@ npm install                  # dev tools only; the app has zero runtime dependen
 export GROQ_API_KEY=gsk_...  # optional; PowerShell: $env:GROQ_API_KEY="gsk_..."
 export LLM_PROVIDER=groq     # groq | xai | gemini
 npm start                    # http://localhost:3000
-npm run check                # lint + type-check + tests (Node 20+)
+npm run check                # lint + type-check + format check + tests (Node 20+)
+npm run format               # auto-format with Prettier
 ```
 
 ## Architecture
@@ -60,7 +61,7 @@ tests/                  node:test unit and HTTP tests (upstream services faked)
 | Parameter | What was done |
 |---|---|
 | Problem alignment | Location-aware live AQI and city notes; routines, indoor hacks and sustainable alternatives for each household; community actions; every tip explains Why and Impact, quantified in an assumptions-labelled impact panel; GenAI plan and chat |
-| Code quality | Small single-purpose functions, named constants, JSDoc types checked by `tsc` in strict mode (checkJs, noImplicitAny, strictNullChecks), ESLint, EditorConfig, shared pure logic for browser and server, zero runtime dependencies |
+| Code quality | Small single-purpose functions, named constants, JSDoc types checked by `tsc` in strict mode (checkJs, noImplicitAny, strictNullChecks), strict ESLint (curly, no-shadow, no-param-reassign, eqeqeq), Prettier-enforced formatting, EditorConfig, `.gitattributes` (LF line endings), shared pure logic for browser and server, zero runtime dependencies |
 | Security | API keys only on the server; CSP, nosniff, no `innerHTML`; whitelisted inputs; sanitised chat history (6 turns, 500 chars); per-route body limits and per-IP rate limits (10/min for AI, 30/min for AQI); daily AI budget (`AI_DAILY_LIMIT`, default 500); upstream timeouts; no-store API responses; prompts treat user data as data |
 | Efficiency | Static files gzipped once with ETag revalidation (local server), CDN on Vercel, 10-minute AQI cache with shared in-flight lookups, debounced rendering, cancellable AI requests, capped history and output tokens |
 | Testing | 50 `node:test` tests, about 99% line coverage (`npm run test:coverage`): AQI maths, sanitisers, plan rules, impact model, rate limiter, emergency notice, HTTP behaviour, Vercel handler behaviour, and the Open-Meteo, Groq, xAI and Gemini paths with faked upstreams. CI runs lint, type-check and tests |

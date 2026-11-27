@@ -10,8 +10,10 @@
     "test:coverage": "node --test --experimental-test-coverage",
     "lint": "eslint .",
     "typecheck": "tsc -p jsconfig.json",
-    "check": "npm run lint && npm run typecheck && npm test",
-    "build": "node scripts/build-public.js"
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm test",
+    "build": "node scripts/build-public.js",
+    "format": "prettier --write \"**/*.{js,css,json}\"",
+    "format:check": "prettier --check \"**/*.{js,css,json}\""
   },
   "engines": {
     "node": ">=20"
@@ -22,6 +24,20 @@
     "@types/node": "^20.19.43",
     "eslint": "^9.39.5",
     "globals": "^17.14.0",
+    "prettier": "^3.10.1",
     "typescript": "^7.0.2"
-  }
+  },
+  "homepage": "https://smog-saathi.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soham53crtl/smog-saathi.git"
+  },
+  "keywords": [
+    "air-quality",
+    "aqi",
+    "smog",
+    "genai",
+    "accessibility",
+    "vercel"
+  ]
 }

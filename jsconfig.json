@@ -1,4 +1,17 @@
 {
-  "compilerOptions": {"checkJs": true, "allowJs": true, "noEmit": true, "target": "ES2022", "module": "ES2022", "moduleResolution": "bundler", "lib": ["ES2023", "DOM"], "types": ["node"], "strict": true, "skipLibCheck": true, "maxNodeModuleJsDepth": 0, "noImplicitAny": true},
+  "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "maxNodeModuleJsDepth": 0,
+    "noImplicitAny": true
+  },
   "include": ["src/**/*.js", "backend.js", "api/**/*.js", "scripts/**/*.js"]
 }

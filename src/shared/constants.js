@@ -1,8 +1,12 @@
 // Named limits and lookup tables shared by every module.
 
 export const BANDS = [
-  {max: 50, name: "Good"}, {max: 100, name: "Satisfactory"}, {max: 200, name: "Moderate"},
-  {max: 300, name: "Poor"}, {max: 400, name: "Very Poor"}, {max: Infinity, name: "Severe"}
+  {max: 50, name: "Good"},
+  {max: 100, name: "Satisfactory"},
+  {max: 200, name: "Moderate"},
+  {max: 300, name: "Poor"},
+  {max: 400, name: "Very Poor"},
+  {max: Infinity, name: "Severe"}
 ];
 /** Approximate kg CO2 per passenger-km, by commute mode. @type {Record<string, number>} */
 export const EF = {car: 0.17, bike: 0.04, bus: 0.03, metro: 0.03, active: 0, wfh: 0};
